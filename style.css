@@ -1,0 +1,84 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #bebebe;
+  color: #fff;
+}
+
+#scoreboard {
+  max-width: 500px;
+  margin: 0 auto;
+  user-select: none;
+}
+
+/* --- LIVE MATCH STATE --- */
+.live-match {
+  background: #000;
+  padding: 15px;
+}
+.player-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.player-name-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.player-name {
+  font-size: 2rem;
+}
+.score-box {
+  background: #00BFFF;
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: bold;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  border-radius: 6px;
+}
+.match-time {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: #00BFFF;
+}
+.serving-arrow {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 16px solid red;
+}
+.no-arrow {
+  width: 16px;
+  height: 20px;
+}
+
+/* --- NO LIVE MATCH STATE --- */
+.no-match {
+  display: flex;
+  flex-direction: column;
+}
+.previous-match {
+  background: #000;
+  color: #fff;
+  padding: 10px;
+  font-size: 1rem;
+}
+.previous-match .score-row {
+  display: flex;
+  justify-content: space-between;
+}
+.next-match {
+  background: #00BFFF;
+  color: #fff;
+  padding: 10px;
+  font-size: 1rem;
+}
+.label {
+  font-weight: bold;
+}
