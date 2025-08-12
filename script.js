@@ -30,7 +30,7 @@ function getScoreboard(courtId) {
         serve: {
           isFirstParticipantServing: true
         },
-        matchAction: "Play"
+        matchAction: "null"
       }
     },
     previousMatch: {
@@ -149,3 +149,4 @@ async function updateScoreboard() {
 
 updateScoreboard();
 setInterval(updateScoreboard, 1000);
+
