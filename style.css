@@ -1,86 +1,74 @@
+/* Lerretet (Selve nettsiden/skjermen) */
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: transparent;
-  color: #fff;
+    margin: 0;
+    padding-top: 50px; /* Flytter tavlen litt ned fra toppen av skjermen */
+    /* padding-top: 50px; */
+    display: flex;
+    justify-content: center; /* Sentrerer tavlen på midten */
+    background-color: #680091;  /*Midlertidig Chroma Key Grønn for koding */
+    font-family: 'Montserrat', sans-serif; /* Den sporty skrifttypen */
 }
 
+/* Selve resultattavlen */
 #scoreboard {
-  max-width: 500px;
-  margin: 0 auto;
-  user-select: none;
+    display: flex;
+    align-items: center;
+    background-color: #ffffff; /* Hvit bakgrunn for navnene */
+    border-radius: 8px; /* Litt avrundede kanter ser proft ut */
+    /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Skygge så den popper frem fra videobildet */
+    height: 45px;
+    overflow: hidden; /* Holder fargene pent inni boksen */
+    border: 1px solid #000000;
 }
 
-/* --- LIVE MATCH STATE --- */
-.live-match {
-  background: #000;
-  padding: 15px;
-}
-.player-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.player-name-container {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+/* Boksene for spillernavn */
 .player-name {
-  font-size: 2rem;
-}
-.score-box {
-  background: #00BFFF;
-  color: #fff;
-  font-size: 2.2rem;
-  font-weight: bold;
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-  border-radius: 6px;
-}
-.match-time {
-  margin-top: 10px;
-  font-size: 1.2rem;
-  color: #00BFFF;
-}
-.serving-arrow {
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-left: 16px solid red;
-}
-.no-arrow {
-  width: 16px;
-  height: 20px;
+    padding: 0 15px;
+    font-size: 30px;
+    color: #333333; /* Mørk grå tekst på navnene */
+    min-width: 220px;
+    text-align: center;
 }
 
-/* --- NO LIVE MATCH STATE --- */
-.no-match {
-  display: flex;
-  flex-direction: column;
-}
-.previous-match {
-  background: #000;
-  color: #fff;
-  padding: 10px;
-  font-size: 1rem;
-}
-.previous-match .score-row {
-  display: flex;
-  justify-content: space-between;
-}
-.next-match {
-  background: #00BFFF;
-  color: #fff;
-  padding: 10px;
-  font-size: 1rem;
-}
-.label {
-  font-weight: bold;
+/* Midtseksjonen med felles blåfarge */
+.score-section {
+    display: flex;
+    align-items: center;
+    background-color: #0d47a1; /* Den mørkeblå fargen */
+    color: white;
+    height: 100%;
 }
 
+/* Set-score (Ytterst i det blå feltet) */
+.set-score {
+    font-size: 30px;
+    padding: 0 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* Gjør bakgrunnen litt mørkere blå for å skille den fra poengene */
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
 
+/* Game-score (I midten) */
+.match-score {
+    font-size: 38px;
+    padding: 0 15px;
+    min-width: 110px;
+    text-align: center;
+}
+
+/* Serve-prikken (Rød) */
+.serve-indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%; /* Gjør den rund */
+    background-color: #ff0000; /* Rød farge */
+    opacity: 0; /* Gjør den usynlig som standard */
+    margin: 0 5px;
+    /* border: 1px solid #000000; */
+}
+
+/* Når noen server, legger vi til "active"-klassen via JavaScript senere */
+.serve-indicator.active {
+    opacity: 1; /* Gjør prikken synlig */
+}
