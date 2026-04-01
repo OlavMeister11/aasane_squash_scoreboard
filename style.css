@@ -5,7 +5,7 @@ body {
     /* padding-top: 50px; */
     display: flex;
     justify-content: center; /* Sentrerer tavlen på midten */
-    background-color: #680091;  /*Midlertidig Chroma Key Grønn for koding */
+    background-color: transparent;  /*Midlertidig Chroma Key Grønn for koding */
     font-family: 'Montserrat', sans-serif; /* Den sporty skrifttypen */
 }
 
