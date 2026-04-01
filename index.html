@@ -1,14 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
-<meta charset="UTF-8" />
-<title>Rankedin Scoreboard</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squash Resultattavle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="scoreboard">Loading...</div>
+    <div id="scoreboard">
+        
+        <div class="player-name left" id="player1-name">Pending</div>
+        
+        <div class="score-section">
+            <div class="set-score" id="player1-sets">0</div>
+            
+            <div class="serve-indicator active" id="player1-serve"></div>
+            
+            <div class="match-score" id="match-score">0 - 0</div>
+            
+            <div class="serve-indicator" id="player2-serve"></div>
+            
+            <div class="set-score" id="player2-sets">0</div>
+        </div>
+        
+        <div class="player-name right" id="player2-name">Pending</div>
 
-<script src="script.js"></script>
+    </div>
+
+    <script src="script.js"></script>
+
 </body>
 </html>
