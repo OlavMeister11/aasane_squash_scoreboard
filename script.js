@@ -1,152 +1,108 @@
-const tournamentId = "55685";
-const courtNumber = 0;
-const scoreboardEl = document.getElementById('scoreboard');
+// Hovedfunksjon som starter når nettsiden lastes
+async function initScoreboard() {
+    
+    // Les av nettadressen (URL) for å finne 'tournamentID' og 'court'
+    // Eksempel: https://dittnavn.github.io/squash.html?tournamentID=12345&court=1
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourneyId = urlParams.get('tournamentID');
+    const courtNum = parseInt(urlParams.get('court'), 10); // Gjør om til tall
 
-// Mock data instead of real API calls
-function getCourtId(tournamentId, courtIndex) {
-  // Return mock court ID
-  return Promise.resolve("mock-court-id");
-}
-
-function getScoreboard(courtId) {
-  // Return mock scoreboard data
-  const mockData = {
-    liveMatch: {
-      base: {
-        firstParticipant: [{ firstName: "Alice", lastName: "Smith" }],
-        secondParticipant: [{ firstName: "Bob", lastName: "Johnson" }]
-      },
-      state: {
-        score: {
-          firstParticipantScore: 3,
-          secondParticipantScore: 2,
-          detailedResult: [
-            { firstParticipantScore: 11, secondParticipantScore: 8 },
-            { firstParticipantScore: 9, secondParticipantScore: 11 },
-            { firstParticipantScore: 11, secondParticipantScore: 6 }
-          ]
-        },
-        matchTime: "00:12",
-        serve: {
-          isFirstParticipantServing: true
-        },
-        matchAction: "null"
-      }
-    },
-    previousMatch: {
-      base: {
-        firstParticipant: [{ firstName: "Carol", lastName: "Davis" }],
-        secondParticipant: [{ firstName: "Dave", lastName: "Miller" }]
-      },
-      state: {
-        score: {
-          detailedResult: [
-            { firstParticipantScore: 11, secondParticipantScore: 5 },
-            { firstParticipantScore: 11, secondParticipantScore: 9 }
-          ]
-        },
-        totalDurationInSeconds: 950
-      }
-    },
-    nextMatch: {
-      firstParticipant: [{ firstName: "Eve", lastName: "Taylor" }],
-      secondParticipant: [{ firstName: "Frank", lastName: "Wilson" }],
-      className: "Open A",
-      time: "15:30"
+    // Sjekk om vi mangler parametere i URL-en
+    if (!tourneyId || isNaN(courtNum)) {
+        console.error("Mangler info! Legg til ?tourney=ID&court=TALL i adressen.");
+        // Her kan vi evt. skjule tavlen hvis lenken er feil
+        return; 
     }
-  };
 
-  return Promise.resolve(mockData);
+    let courtId;
+
+    // Spør Rankedin om banelisten for denne turneringen
+    try {
+        const courtsApiUrl = `https://live.rankedin.com/api/v1/Tournament/${tourneyId}/court-ids`;
+        const response = await fetch(courtsApiUrl);
+        const courtIds = await response.json();
+
+        // Finn riktig bane-ID (N-1)
+        const courtIndex = courtNum - 1; 
+
+        if (courtIndex < 0 || courtIndex >= courtIds.length) {
+            console.error(`Fant ikke Bane ${courtNum} i turnering ${tourneyId}.`);
+            return;
+        }
+
+        courtId = courtIds[courtIndex];
+        console.log(`Suksess! Bane ${courtNum} har ID: ${courtId}`);
+
+    } catch (error) {
+        console.error("Klarte ikke å hente baneliste:", error);
+        return; // Stopp videre kjøring hvis dette feiler
+    }
+
+    // Bygg den endelige lenken for å hente selve kampen
+    const matchApiUrl = `https://live.rankedin.com/api/v1/Court/${courtId}/scoreboard`;
+
+
+
+    async function updateScoreboard() {
+        try {
+            // Hent data fra Rankedin
+            const response = await fetch(matchApiUrl);
+            const data = await response.json();
+
+            // Sjekk om det faktisk spilles en kamp akkurat nå
+            if (data.liveMatch) {
+                const match = data.liveMatch;
+
+                // Oppdater Navn (Henter etternavn)
+                document.getElementById('player1-name').innerText = match.base.firstParticipant[0].lastName;
+                document.getElementById('player2-name').innerText = match.base.secondParticipant[0].lastName;
+
+                // Oppdater Poeng (Stilling i pågående game)
+                const gamesArray = match.state.score.detailedResult;
+                if (gamesArray && gamesArray.length > 0) {
+                    // Henter det siste spillet i listen (det som pågår nå)
+                    const currentGame = gamesArray[gamesArray.length - 1];
+                    const p1Points = currentGame.firstParticipantScore;
+                    const p2Points = currentGame.secondParticipantScore;
+                    document.getElementById('match-score').innerText = `${p1Points} - ${p2Points}`;
+                } else {
+                    // Hvis kampen nettopp har startet og listen er tom
+                    document.getElementById('match-score').innerText = "0 - 0";
+                }
+
+                // Oppdater Serve-indikator
+                const isP1Serving = match.state.serve.isFirstParticipantServing;
+                if (isP1Serving) {
+                    document.getElementById('player1-serve').classList.add('active');
+                    document.getElementById('player2-serve').classList.remove('active');
+                } else {
+                    document.getElementById('player1-serve').classList.remove('active');
+                    document.getElementById('player2-serve').classList.add('active');
+                }
+
+                // Oppdater Sett-score (Games vunnet totalt)
+                const p1Sets = match.state.score.firstParticipantScore;
+                const p2Sets = match.state.score.secondParticipantScore;
+                document.getElementById('player1-sets').innerText = p1Sets;
+                document.getElementById('player2-sets').innerText = p2Sets;
+
+            } else {
+                console.log("Ingen pågående kamp på denne banen akkurat nå.");
+                // Her kan du evt. legge inn kode som skjuler hele tavlen hvis banen er tom
+            }
+
+        } catch (error) {
+            console.error("Klarte ikke å hente data fra Rankedin:", error);
+        }
+    }
+
+    // Kjør funksjonen én gang med det samme nettsiden lastes...
+    updateScoreboard();
+
+    // ...og be deretter nettsiden om å hente nye data hvert 3. sekund (3000 millisekunder)
+    setInterval(updateScoreboard, 3000);
+
 }
 
-function formatName(p) {
-  return `${p.firstName[0]}. ${p.lastName}`;
-}
-
-function renderLiveMatch(liveMatch) {
-  const p1 = liveMatch.base.firstParticipant[0];
-  const p2 = liveMatch.base.secondParticipant[0];
-  const score = liveMatch.state.score;
-  const elapsed = liveMatch.state.matchTime || "";
-  const servingFirst = liveMatch.state.serve?.isFirstParticipantServing;
-
-  scoreboardEl.innerHTML = `
-    <div class="live-match">
-      <div class="player-row">
-        <div class="player-name-container">
-          ${servingFirst ? '<div class="serving-arrow"></div>' : '<div class="no-arrow"></div>'}
-          <div class="player-name">${formatName(p1)}</div>
-        </div>
-        <div class="score-box">${score.firstParticipantScore}</div>
-      </div>
-      <div class="player-row">
-        <div class="player-name-container">
-          ${!servingFirst ? '<div class="serving-arrow"></div>' : '<div class="no-arrow"></div>'}
-          <div class="player-name">${formatName(p2)}</div>
-        </div>
-        <div class="score-box">${score.secondParticipantScore}</div>
-      </div>
-      <div class="match-time">${elapsed}</div>
-    </div>
-  `;
-}
-
-function renderNoMatch(prevMatch, nextMatch) {
-  let prevHTML = "";
-  if (prevMatch) {
-    const p1 = prevMatch.base.firstParticipant[0];
-    const p2 = prevMatch.base.secondParticipant[0];
-    const sets = prevMatch.state?.score?.detailedResult || [];
-    const durationMin = prevMatch.state?.totalDurationInSeconds
-      ? Math.floor(prevMatch.state.totalDurationInSeconds / 60)
-      : "N/A";
-    prevHTML = `
-      <div class="previous-match">
-        <div class="score-row">
-          <span>${formatName(p1)}</span>
-          <span>${sets.map(s => s.firstParticipantScore).join(" ")}</span>
-        </div>
-        <div class="score-row">
-          <span>${formatName(p2)}</span>
-          <span>${sets.map(s => s.secondParticipantScore).join(" ")}</span>
-        </div>
-        <div>Duration: ${durationMin} min</div>
-      </div>
-    `;
-  }
-
-  let nextHTML = "";
-  if (nextMatch) {
-    const p1 = nextMatch.firstParticipant[0];
-    const p2 = nextMatch.secondParticipant[0];
-    nextHTML = `
-      <div class="next-match">
-        <div>${formatName(p1)} vs ${formatName(p2)}</div>
-        <div>Class: ${nextMatch.className || "N/A"}</div>
-        <div>Time: ${nextMatch.time || "TBD"}</div>
-      </div>
-    `;
-  }
-
-  scoreboardEl.innerHTML = `
-    <div class="no-match">
-      ${prevHTML}
-      ${nextHTML}
-    </div>
-  `;
-}
-
-async function updateScoreboard() {
-  const courtId = await getCourtId(tournamentId, courtNumber);
-  const data = await getScoreboard(courtId);
-
-  if (data.liveMatch && data.liveMatch.state?.matchAction === "Play") {
-    renderLiveMatch(data.liveMatch);
-  } else {
-    renderNoMatch(data.previousMatch, data.nextMatch);
-  }
-}
-
-updateScoreboard();
-setInterval(updateScoreboard, 1000);
-
+// Spark i gang hele prosessen
+initScoreboard();
